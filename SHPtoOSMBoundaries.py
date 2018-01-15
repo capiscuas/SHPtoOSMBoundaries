@@ -40,7 +40,7 @@ def getUniqueNodeId(point):
     global node_counter
     global unique_nodes
     lonlat = str(point[0]) + "," + str(point[1])
-    if  not unique_nodes.has_key(lonlat):
+    if  not lonlat in unique_nodes:
         node_counter -= 1
         unique_nodes[lonlat] = node_counter
         return node_counter
@@ -77,7 +77,7 @@ def fillingLevelWays(data,uniquetag):
 
 
 def addEdgePoint(edgepoints_ocurrences,point_id):
-    if edgepoints_ocurrences.has_key(point_id):
+    if point_id in edgepoints_ocurrences:
         edgepoints_ocurrences[point_id] += 1
     else: edgepoints_ocurrences[point_id] = 1
     
@@ -102,7 +102,7 @@ def save(uniqueways_ref,unique_nodes,allrelations,output_filename):
 
     #Creating the ways part in the .osm
     #print uniqueways_ref
-    print "Saving Ways"
+    print("Saving Ways")
     for way_ref,line in uniqueways_ref.items():
         #way_ref = feature['properties']["way_ref"]
         xml_way = ET.Element('way',{'id':'-'+str(way_ref), 'visible':'true'})
@@ -112,7 +112,7 @@ def save(uniqueways_ref,unique_nodes,allrelations,output_filename):
             xml_way.append(ET.Element('nd',{'ref':str(node_id)}))
         r.append(xml_way)
     
-    print "Saving Nodes"
+    print("Saving Nodes")
     for lonlat , n_id in unique_nodes.items():
         lon = lonlat.split(",")[0]
         lat = lonlat.split(",")[1]
@@ -125,7 +125,7 @@ def save(uniqueways_ref,unique_nodes,allrelations,output_filename):
 #with open(output_filename, "w") as f:
    #f.write(xmlstr)
     
-    print "Saving Relations"
+    print("Saving Relations")
     counter = 1000000
     for level, all_relations_level in allrelations.items():
         print("Export relations level",level)
@@ -153,13 +153,13 @@ def save(uniqueways_ref,unique_nodes,allrelations,output_filename):
                 r.append(xml)
                 counter += 1
 
-    print "Saving to",output_filename
-    file_out = open(output_filename, "w")
+    print("Saving to",output_filename)
+    file_out = open(output_filename, "wb")
     file_out.write(ET.tostring(r, encoding='utf-8')) 
     file_out.close()
  
 def addWayToRelation(level,identif,boundaryname,way_ref):
-    if relations[level].has_key(identif):
+    if identif in relations[level]:
                 relations[level][identif]["ways"].append(way_ref)
     else: 
                 relations[level][identif] = {"boundaryname":boundaryname, "identif":identif, "ways":[way_ref]}
@@ -191,7 +191,7 @@ def detect_relations(way,way_ref,level,level_ways):
                 boundary_id = way_with_tags["properties"][eachlevel_uniquetag]
                 boundarynames[eachlevel_num][boundary_id] = way_with_tags["properties"][eachlevel_nametag]
                 #In the next FOR loop, we will see if this way is a border between two upper level if the tags differ
-                if upper_rel[eachlevel_num].has_key(way_ref):
+                if way_ref in upper_rel[eachlevel_num]:
                     upper_rel[eachlevel_num][way_ref].append(boundary_id)
                 else:
                     upper_rel[eachlevel_num][way_ref] = [boundary_id]
@@ -255,7 +255,7 @@ def main():
                 if n != 0 and n != len(way.coords)-1:
                     #print "searching"
                     if getUniqueNodeId(coord) in vertices:
-                        print "Found vertice in middle of way, search in JOSM as ",coord[1]," ",coord[0]
+                        print("Found vertice in middle of way, search in JOSM as ",coord[1]," ",coord[0])
                         #print n
                         #print way.coords[:n+1]
                         way1 = LineString(way.coords[:n+1])
@@ -291,7 +291,7 @@ def main():
 
     #Joining the little segments within vertices
 
-    print "Recalculating Edge Points"
+    print("Recalculating Edge Points")
     edgepoints_ocurrences = recalculateEdges(uniqueways)
     print("Total way edges",len(edgepoints_ocurrences))
     
@@ -306,12 +306,12 @@ def main():
                 print(way_ref)
             
         save(uniqueways_ref,unique_nodes,{},"tofix_splittedways.osm")
-        print "A maintenance 'tofix_splittedways.osm' file was generated in case further cleaning needs to be done with JOSM."
-        print "Once finished, replace it as '",SPLITTED_WAYS_GEOJSON,"', set the MAINTENANCE setting to False and rerun this script."
+        print("A maintenance 'tofix_splittedways.osm' file was generated in case further cleaning needs to be done with JOSM.")
+        print("Once finished, replace it as '",SPLITTED_WAYS_GEOJSON,"', set the MAINTENANCE setting to False and rerun this script.")
         exit()
 #####END OF CLEANING THE SPLITTED WAYS FILE
    
-    print ("Loading ALL Levels file")
+    print("Loading ALL Levels file")
     with open(ALL_LEVELS_GEOJSON) as f:
         data = json.load(f)
         
