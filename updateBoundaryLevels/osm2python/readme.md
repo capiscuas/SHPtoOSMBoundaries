@@ -1,6 +1,7 @@
 osm2python : A  Simple Python OSM XML Converter
 ===========
 
+(forked from Dmitri Lebedev's work at https://bitbucket.org/siberiano/osm2python/overview)
 Usage is extremely simple:
 
     >>> from osm2python import load_osm, dump_osm
